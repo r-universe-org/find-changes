@@ -1,0 +1,22 @@
+name: 'Find changed submodules'
+description: 'Find out which submodule has changed'
+outputs:
+  REPO_URL: 
+    description: "URL of the changed submodule"
+    value: ${{ steps.git-log.outputs.REPO_URL }}
+  REPO_COMMIT: 
+    description: "Commit of the changed submodule"
+    value: ${{ steps.git-log.outputs.REPO_COMMIT }}
+runs:
+  using: "composite"
+  steps: 
+    - id: git-log
+      shell: bash
+      run: |
+        PKG=$(git log --pretty=format: --name-only HEAD^.. | grep "^[^.]")
+        echo "New package: ${PKG}"
+        git submodule init ${PKG}
+        REPO_URL=$(git config --list | grep "submodule.${PKG}.url=" | cut -d'=' -f2)
+        REPO_COMMIT=$(git submodule status $PKG | awk '{print $1}' | sed 's/^[^0-9a-z]*//')
+        echo ::set-output name=REPO_URL::$REPO_URL
+        echo ::set-output name=REPO_COMMIT::$REPO_COMMIT
