@@ -4,6 +4,9 @@ outputs:
   repo_url:
     description: "URL of the changed submodule"
     value: ${{ steps.git-log.outputs.repo_url }}
+  repo_name:
+    description: "Name of the changed submodule"
+    value: ${{ steps.git-log.outputs.repo_name }}
   repo_commit:
     description: "Commit of the changed submodule"
     value: ${{ steps.git-log.outputs.repo_commit }}
@@ -13,10 +16,11 @@ runs:
     - id: git-log
       shell: bash
       run: |
-        PKG=$(git log --pretty=format: --name-only HEAD^.. | grep "^[^.]")
-        echo "New package: ${PKG}"
-        git submodule init ${PKG}
-        REPO_URL=$(git config --list | grep "submodule.${PKG}.url=" | cut -d'=' -f2)
-        REPO_COMMIT=$(git submodule status $PKG | awk '{print $1}' | sed 's/^[^0-9a-z]*//')
+        REPO_NAME=$(git log --pretty=format: --name-only HEAD^.. | grep "^[^.]")
+        echo "New package: ${REPO_NAME}"
+        git submodule init ${REPO_NAME}
+        REPO_URL=$(git config --list | grep "submodule.${REPO_NAME}.url=" | cut -d'=' -f2)
+        REPO_COMMIT=$(git submodule status $REPO_NAME | awk '{print $1}' | sed 's/^[^0-9a-z]*//')
         echo ::set-output name=repo_url::$REPO_URL
+        echo ::set-output name=repo_name::$REPO_NAME
         echo ::set-output name=repo_commit::$REPO_COMMIT
