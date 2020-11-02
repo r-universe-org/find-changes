@@ -14,6 +14,9 @@ outputs:
   repo_commit:
     description: "Commit of the changed submodule"
     value: ${{ steps.git-log.outputs.repo_commit }}
+  repo_subdir:
+    description: "Subdirectory if the R package"
+    value: ${{ steps.git-log.outputs.repo_subdir }}
   maintainer_login:
     description: "Package maintainer GitHub username"
     value: ${{ steps.find-user.outputs.maintainer_login }}
@@ -28,9 +31,11 @@ runs:
         git submodule init ${REPO_NAME}
         REPO_URL=$(git config --list | grep "submodule.${REPO_NAME}.url=" | cut -d'=' -f2)
         REPO_COMMIT=$(git submodule status $REPO_NAME | awk '{print $1}' | sed 's/^[^0-9a-z]*//')
+        REPO_SUBDIR=$(git config -f .gitmodules --get-regexp "${REPO_NAME}\.subdir" | awk '{print $2}')
         echo ::set-output name=repo_url::$REPO_URL
         echo ::set-output name=repo_name::$REPO_NAME
         echo ::set-output name=repo_commit::$REPO_COMMIT
+        echo ::set-output name=repo_subdir::$REPO_SUBDIR
     - id: find-user
       shell: bash
       run: |
