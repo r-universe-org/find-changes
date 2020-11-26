@@ -20,9 +20,9 @@ outputs:
   repo_subdir:
     description: "Subdirectory of the R package"
     value: ${{ steps.git-log.outputs.repo_subdir }}
-  has_app:
+  universe_app:
     description: "Does the user have the GitHub app installed"
-    value: ${{ steps.git-log.outputs.has_app }}
+    value: ${{ steps.git-log.outputs.universe_app }}
   maintainer_login:
     description: "Package maintainer GitHub username"
     value: ${{ steps.find-user.outputs.maintainer_login }}
@@ -45,7 +45,7 @@ runs:
         echo ::set-output name=repo_commit::$REPO_COMMIT
         echo ::set-output name=repo_subdir::$REPO_SUBDIR
         if [ -f ".ghapp" ] && [ "$REPO_OWNER" = "$(basename $PWD)" ]; then
-        echo ::set-output name=has_app::true
+        echo ::set-output name=universe_app::true
         fi
     - id: find-user
       shell: bash
