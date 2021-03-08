@@ -4,6 +4,9 @@ inputs:
   github-token:
     description: GitHub token
     default: ''
+  package:
+    description: Which package to build
+    default: ''
 outputs:
   repo_url:
     description: "URL of the changed submodule"
@@ -32,6 +35,7 @@ runs:
     - id: git-log
       shell: bash
       run: |
+        git reset --hard $(git rev-list HEAD -1 ${{inputs.package}})
         REPO_NAME=$(git log --pretty=format: --name-only HEAD^.. | grep "^[^.]")
         echo "New package: ${REPO_NAME}"
         git submodule init ${REPO_NAME}
