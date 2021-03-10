@@ -53,13 +53,14 @@ runs:
         if [ -f ".ghapp" ] && [ "$REPO_OWNER" = "$(basename $PWD)" ]; then
         echo ::set-output name=universe_app::true
         fi
+        echo "GIT_SUBMODULE=${REPO_NAME}" >> $GITHUB_ENV
     - id: find-user
       shell: bash
       run: |
         if [ "${{inputs.github-token}}" ]; then
           AUTH_HEADER="-H 'Authorization: token ${{inputs.github-token}}'"
         fi
-        LOGIN=$(curl $AUTH_HEADER -s https://api.github.com/repos/${{github.repository}}/commits/${{github.sha}} | jq -r '.author.login')
+        LOGIN=$(curl $AUTH_HEADER -s https://api.github.com/repos/${{github.repository}}/commits?path=${GIT_SUBMODULE} | jq -r '.[0].author.login')
         if [ "$LOGIN" ] && [ "$LOGIN" != "null" ]; then
           echo "Package maintainer github login: $LOGIN"
           echo "::set-output name=maintainer_login::$LOGIN"
