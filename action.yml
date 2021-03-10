@@ -35,8 +35,10 @@ runs:
     - id: git-log
       shell: bash
       run: |
-        git reset --hard $(git rev-list HEAD -1 ${{inputs.package}})
+        REPO_NAME="${{inputs.package}}"
+        if [ -z "$REPO_NAME" ]; then
         REPO_NAME=$(git log --pretty=format: --name-only HEAD^.. | grep "^[^.]")
+        fi
         echo "New package: ${REPO_NAME}"
         git submodule init ${REPO_NAME}
         REPO_URL=$(git config --list | grep "submodule.${REPO_NAME}.url=" | cut -d'=' -f2)
