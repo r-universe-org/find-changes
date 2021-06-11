@@ -23,6 +23,9 @@ outputs:
   repo_subdir:
     description: "Subdirectory of the R package"
     value: ${{ steps.git-log.outputs.repo_subdir }}
+  repo_branch:
+    description: "Which tag or branch we are tracking"
+    value: ${{ steps.git-log.outputs.repo_branch }}
   repo_registered:
     description: "If the R package is in the universe registry (ie not a remote)"
     value: ${{ steps.git-log.outputs.repo_registered }}
@@ -48,12 +51,14 @@ runs:
         REPO_OWNER=$(basename $(dirname "$REPO_URL"))
         REPO_COMMIT=$(git submodule status $REPO_NAME | awk '{print $1}' | sed 's/^[^0-9a-z]*//')
         REPO_SUBDIR=$(git config -f .gitmodules --get "submodule.${REPO_NAME}.subdir" || true)
+        REPO_BRANCH=$(git config -f .gitmodules --get "submodule.${REPO_NAME}.branch" || true)
         REPO_REGISTERED=$(git config -f .gitmodules --get "submodule.${REPO_NAME}.registered" || true)
         echo ::set-output name=repo_url::$REPO_URL
         echo ::set-output name=repo_name::$REPO_NAME
         echo ::set-output name=repo_owner::$REPO_OWNER
         echo ::set-output name=repo_commit::$REPO_COMMIT
         echo ::set-output name=repo_subdir::$REPO_SUBDIR
+        echo ::set-output name=repo_branch::$REPO_BRANCH
         echo ::set-output name=repo_registered::$REPO_REGISTERED
         if [ -f ".ghapp" ] && [ "$REPO_OWNER" = "$(basename $PWD)" ]; then
         echo ::set-output name=universe_app::true
